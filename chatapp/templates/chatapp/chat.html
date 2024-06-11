@@ -1,0 +1,50 @@
+{% extends '../includes/base.html' %}
+
+{% block title %}
+Chat Room
+{% endblock %}
+
+{% block content %}
+    <h1>Chat Room</h1>
+    <p>Welcome, {{ user.username }}! <a href="{% url 'logout' %}">Logout</a></p>
+    <div id="chat-log">
+        {% for message in messages %}
+            <p><strong>{{ message.user.username }}:</strong> {{ message.content }} <small>{{ message.timestamp }}</small></p>
+        {% endfor %}
+    </div>
+    <form id="chat-form">
+        {% csrf_token %}
+        <textarea title="message area" id="chat-message-input" rows="3" cols="40"></textarea>
+        <br>
+        <button type="submit">Send</button>
+    </form>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const chatSocket = new WebSocket(
+        'ws://' + window.location.host + '/ws/chat/'
+    );
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        document.querySelector('#chat-log').innerHTML += ('<p><strong>' + data.username + ':</strong> ' + data.message + '</p>');
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    document.querySelector('#chat-form').onsubmit = function(e) {
+        e.preventDefault();
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+        messageInputDom.value = '';
+        return false;
+    };
+</script>
+{% endblock %}

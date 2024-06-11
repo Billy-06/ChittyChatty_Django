@@ -5,6 +5,14 @@ from django.contrib.auth.decorators import login_required
 from .forms import UserRegisterForm
 from .models import Message
 
+def home(request):
+    #  redirect to chat view if user is authenticated
+    if request.user.is_authenticated:
+        return redirect('chat')
+    else:
+        # login form
+        return redirect('login')
+
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -21,6 +29,10 @@ def register(request):
 
 @login_required
 def chat_view(request):
+    # if user in not authenticated, redirect to login page
+    if not request.user.is_authenticated:
+        return redirect('login')
+
     if request.method == "POST":
         content = request.POST.get('content')
         if content:
