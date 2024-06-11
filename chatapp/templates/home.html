@@ -1,0 +1,21 @@
+{% extends './includes/base.html' %}
+{% load static %}
+
+{% block title %}
+Chat Room
+{% endblock %}
+
+{% block content %}
+<h1>Chat Room</h1>
+<div id="chat-box">
+    {% for message in messages %}
+        <p><strong>{{ message.user.username }}:</strong> {{ message.content }} <small>{{ message.timestamp }}</small></p>
+    {% endfor %}
+</div>
+<form method="post">
+    {% csrf_token %}
+    <textarea title="message area" name="content" rows="3" cols="40"></textarea>
+    <br>
+    <button type="submit">Send</button>
+</form>
+{% endblock %}
